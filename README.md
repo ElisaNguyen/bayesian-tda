@@ -5,8 +5,11 @@ Training data attribution (TDA) techniques find influential training data for th
 
 ------------------------------
 ## Reproducing the experiments
+
 ### Requirements
+
 The main dependencies are:
+
 - `python==3.10.4`
 - `torch`
 - `torchvision`
@@ -15,14 +18,17 @@ The main dependencies are:
 - `numpy`
 - `pandas`
 - `scikit-learn`
+
 A `conda_env.yml` is provided that details the packages required for reproducing the experiments. 
 We conducted the experiments using this environment on a Nvidia 2080ti GPU.
 
 ### Data
+
 We subsample MNIST and CIFAR10, and provide the indices of the datasets used in our experiments in `data/subset_indices`. 
 To reproduce the dataset, run `run_subset_generation.py`. 
 
 ### Models
+
 To train the CNN models, run `run_cnn_training.py`. 
 To finetune the ViT model, run `run_vit_finetuning.py`.
 
