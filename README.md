@@ -36,5 +36,17 @@ These scripts train the respective model 10 times on the seeds specified in `ran
 The checkpoints after the last 5 epochs are saved to `models/`. This corresponds to sampling a model $\theta$ from the posterior $p(\theta|\mathcal{D})$ similar to stochastic weight averaging. 
 
 ### Experiments
-#### Computing the 
-#### p-values
+In the paper, we conduct hypothesis testing of the signal-to-noise ratio in TDA scores and report the p-value as an indicator of the statistical significance of the estimated scores. Additionally, we inspect the Pearson and Spearman correlations of the TDA scores of different methods to find out how well they correspond to each other. Below are instructions on how to reproduce these analyses. 
+
+#### Step 1: Computing the TDA scores
+We test 5 different TDA methods. To compute the TDA scores of across the ensemble of models, run the following:
+- For LOO: `python run_loo.py --experiment {str} --seed_id {int}`
+- For ATS: `python run_ats.py --experiment {str} --seed_id {int}`
+- For IF: `python run_if.py --experiment {str} --seed_id {int}`
+- 
+
+#### Step 2: Computing p-values
+xxx
+
+#### Step 3: Computing correlations
+xxxx
