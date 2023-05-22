@@ -42,15 +42,19 @@ This is done for all datasets, if you wish to run it on a specific one, change i
 In the paper, we conduct hypothesis testing of the signal-to-noise ratio in TDA scores and report the p-value as an indicator of the statistical significance of the estimated scores. Additionally, we inspect the Pearson and Spearman correlations of the TDA scores of different methods to find out how well they correspond to each other. Below are instructions on how to reproduce these analyses. 
 
 #### Step 1: Computing the TDA scores
-We test 5 different TDA methods. To compute the TDA scores of across the ensemble of models, run the following:
+We test 5 different TDA methods. We provide the scripts in the folders `tda_cnn_scripts` and `tda_vit_scripts` for computing the TDA scores of across the ensemble of models for the CNN and ViT respectively. 
 
-- For LOO: `python run_loo.py --experiment {str} --seed_id {int}`
-- For ATS: `python run_ats.py --experiment {str} --seed_id {int}`
-- For IF: `python run_if.py --experiment {str} --seed_id {int}`
-- For GD and GC: `python run_gd_and_gc.py --experiment {str} --seed_id {int}`
+Each of the scripts should be called with the following parameters: `python <script_name> --task <string> --num_per_class <int> --seed_id <int>`. 
 
-The parameter `--experiment` specifies the name of the experiment. This should be the same as the model folder of the model to compute TDA for. 
+The parameter `--task` specifies the task of the experiment, i.e. either `mnist3` or `cifar10`.
+
+The parameter `--num_per_class` is an integer $\in$ {10, 20, 50} that refers to how many samples per class the model was trained on.
+
 The parameter `--seed_id` is an integer that specifies the seed from the `random_seeds.pt` file. This parameter is used for parallel processing, in case multiple GPUs are available. 
+
+For computing influence functions, we use the code provided by the [FastIF repository](https://github.com/salesforce/fast-influence-functions). Beware to compute the HVP s_test before computing the influence function. 
+
+Please note that this step may take a while, depending on the size of the model. 
 
 #### Step 2: Computing p-values
 After TDA scores are computed, we can compute the 
