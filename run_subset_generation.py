@@ -1,14 +1,8 @@
 import torch
-import torch.nn as nn
-import torch.optim as optim
 from torchvision import transforms
-from torch.utils.data import DataLoader, Subset
 import numpy as np
-import matplotlib.pyplot as plt
-from collections import Counter
 import os
-import pandas as pd
-from utils import (NetBW, NetRGB, test_model, train_model, load_seeds, MNISTWithIdx, CIFAR10WithIdx)
+from utils import (MNISTWithIdx, CIFAR10WithIdx)
 
 
 def get_subset_indices(subset, num_per_class: int): 
@@ -36,25 +30,30 @@ def load_indices(idx_filepath):
 
 def main():
     # Download the data from torchvision
+    trainset_mnist = MNISTWithIdx(root='./data', train=True, transform=transforms.ToTensor(), download=True)
+    testset_mnist = MNISTWithIdx(root='./data', train=False, transform=transforms.ToTensor(), download=True)
     transform_cifar = transforms.Compose([transforms.ToTensor(),
                                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     trainset_cifar = CIFAR10WithIdx(root='./data', train=True, transform=transform_cifar, download=True)
     testset_cifar = CIFAR10WithIdx(root='./data', train=False, transform=transform_cifar, download=True)
 
-    # Create the balanced subset dataset (loading same indices as used in our study)
-    train_indices = load_indices(f'{os.getcwd()}/data/cifar10/train_subset_10pc.txt')
-    test_indices = load_indices(f'{os.getcwd()}/data/cifar10/test_subset.txt')
+    for task, datasets in zip(['mnist3', 'cifar10'], [(trainset_mnist, testset_mnist), (trainset_cifar, testset_cifar)]):
+        trainset, testset = datasets
+        for num_per_class in [10, 20, 50]:
+            # Create the balanced subset dataset (loading same indices as used in our study)
+            train_indices = load_indices(f'{os.getcwd()}/data/{task}/train_subset_{num_per_class}pc.txt')
+            test_indices = load_indices(f'{os.getcwd()}/data/{task}/test_subset.txt')
 
-    # !! If you would like to define new subsets, uncomment this:
-    # train_indices = get_subset_indices(trainset_cifar, 10)
-    # test_indices = get_subset_indices(testset_cifar, 10)
+            # !! If you would like to define new subsets, uncomment this:
+            # train_indices = get_subset_indices(trainset, num_per_class)
+            # test_indices = get_subset_indices(testset, num_per_class)
 
-    train_subset = torch.utils.data.Subset(trainset_cifar, train_indices)
-    test_subset = torch.utils.data.Subset(testset_cifar, test_indices)
+            train_subset = torch.utils.data.Subset(trainset, train_indices)
+            test_subset = torch.utils.data.Subset(testset, test_indices)
 
-    # Save
-    torch.save(train_subset, f'{os.getcwd()}/data/cifar10/train_subset_10pc.pt')
-    torch.save(test_subset, f'{os.getcwd()}/data/cifar10/test_subset.pt')
+            # Save
+            torch.save(train_subset, f'{os.getcwd()}/data/{task}/train_subset_{num_per_class}pc.pt')
+            torch.save(test_subset, f'{os.getcwd()}/data/{task}/test_subset.pt')
 
 
 
