@@ -21,7 +21,7 @@ def main():
     num_epochs = 15 if 'mnist' in args.task else 30
     ckpts = range(num_epochs-5, num_epochs)
 
-    save_path = f"{os.getcwd()}/tda_scores/vit/ats/{args.task}_{args.num_per_class}pc/{seed}/"
+    save_path = f"{os.getcwd()}/../tda_scores/vit/ats/{args.task}_{args.num_per_class}pc/{seed}/"
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
@@ -45,7 +45,7 @@ def main():
 
         # Load the model trained with whole dataset
         model = ViTLoRA(device=device)
-        state_dict = torch.load(f'{os.getcwd()}/models/vit/{args.task}_{args.num_per_class}pc/{seed}/ckpt_epoch_{num_ckpt}.pth')
+        state_dict = torch.load(f'{os.getcwd()}/../models/vit/{args.task}_{args.num_per_class}pc/{seed}/ckpt_epoch_{num_ckpt}.pth')
         model.load_state_dict(state_dict)
 
         # Get loss of the model trained on whole dataset
@@ -57,7 +57,7 @@ def main():
         for instance in trainset:
             # Load the model
             model = ViTLoRA(device=device)
-            state_dict = torch.load(f'{os.getcwd()}/models/vit/{args.task}_{args.num_per_class}pc/{seed}/ckpt_epoch_{num_ckpt}.pth')
+            state_dict = torch.load(f'{os.getcwd()}/../models/vit/{args.task}_{args.num_per_class}pc/{seed}/ckpt_epoch_{num_ckpt}.pth')
             model.load_state_dict(state_dict)
 
             # Set up training

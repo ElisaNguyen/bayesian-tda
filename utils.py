@@ -220,6 +220,7 @@ def compute_attribution(model, criterion, z_test_set, train_dataset, save_path, 
 
 
 def ViTLoRA(device):
+    """Loads the ViT model as a peft model with LoRA."""
     peft_config = LoraConfig(r=16,
                             lora_alpha=16,
                             target_modules=["query", "value"],
@@ -289,7 +290,7 @@ def load_vit_data(task, num_per_class):
         trainset = trainset.rename_column('img', 'image')
     trainset = trainset.add_column('idx', range(len(trainset)))
     trainset.set_transform(preprocess_data)
-    train_idx = load_subset_indices(f'{os.getcwd()}/data/{task}/train_subset_{num_per_class}pc.txt')
+    train_idx = load_subset_indices(f'{os.getcwd()}/../data/{task}/train_subset_{num_per_class}pc.txt')
     trainset = trainset.select((idx for idx in range(len(trainset))
                                 if idx in train_idx))
     
@@ -299,7 +300,7 @@ def load_vit_data(task, num_per_class):
         testset = testset.rename_column('img', 'image')
     testset = testset.add_column('idx', range(len(testset)))
     testset.set_transform(preprocess_data)
-    test_idx = load_subset_indices(f'{os.getcwd()}/data/{task}/test_subset.txt')
+    test_idx = load_subset_indices(f'{os.getcwd()}/../data/{task}/test_subset.txt')
     testset = testset.select((idx for idx in range(len(testset))
                                 if idx in test_idx))
     

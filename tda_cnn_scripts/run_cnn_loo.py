@@ -19,8 +19,8 @@ def main():
     num_epochs = 15 if 'mnist' in args.task else 30
     ckpts = range(num_epochs-5, num_epochs)
 
-    train_dataset = torch.load(f'{os.getcwd()}/data/{args.task}/train_subset_{args.num_per_class}pc.pt')
-    test_dataset = torch.load(f'{os.getcwd()}/data/{args.task}/test_subset.pt')
+    train_dataset = torch.load(f'{os.getcwd()}/../data/{args.task}/train_subset_{args.num_per_class}pc.pt')
+    test_dataset = torch.load(f'{os.getcwd()}/../data/{args.task}/test_subset.pt')
     colnames = [f'z_test_{idx}' for _,_,idx in test_dataset]
     colnames.insert(0, 'train_idx')
     test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
@@ -30,7 +30,7 @@ def main():
 
     criterion = nn.CrossEntropyLoss(reduction='none')
 
-    save_path = f"{os.getcwd()}/tda_scores/cnn/loo/{args.task}_{args.num_per_class}pc/{seed}/"
+    save_path = f"{os.getcwd()}/../tda_scores/cnn/loo/{args.task}_{args.num_per_class}pc/{seed}/"
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
@@ -40,7 +40,7 @@ def main():
         for _,_, z_train_idx in train_dataset:
             # Load the model and get the initial loss values
             model = NetRGB() if train_dataset[0][0].shape[0]==3 else NetBW()
-            ckpt = torch.load(f'{os.getcwd()}/models/cnn/{args.task}_{args.num_per_class}pc/{seed}/ckpt_epoch_{num_ckpt}.pth')
+            ckpt = torch.load(f'{os.getcwd()}/../models/cnn/{args.task}_{args.num_per_class}pc/{seed}/ckpt_epoch_{num_ckpt}.pth')
             model.load_state_dict(ckpt['model_state_dict'])
             model.eval()
 
