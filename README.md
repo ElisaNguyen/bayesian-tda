@@ -20,7 +20,7 @@ The main dependencies are:
 - `scikit-learn==1.2.2`
 - `seaborn==0.12.2`
 
-A `conda_env.yml` is provided that details the packages required for reproducing the experiments. 
+A `req.txt` is provided that details the packages required for reproducing the experiments. To install the same conda environment, use `$ conda create --name <env> --file req.txt` 
 We conducted the experiments using this environment on a Nvidia 2080ti GPU.
 
 ### Data
