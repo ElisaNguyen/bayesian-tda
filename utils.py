@@ -73,6 +73,7 @@ class CIFAR10WithIdx(CIFAR10):
 
 
 def train_model(model, train_loader, optimizer, criterion, num_epochs, save_path=None, loo_idx=None):
+    """Model training with option to leave one out by zero-ing out the loss. Saves last 5 checkpoints."""
     for epoch in tqdm(range(num_epochs)):
         running_loss = 0.0
         for batch in train_loader:
@@ -82,7 +83,7 @@ def train_model(model, train_loader, optimizer, criterion, num_epochs, save_path
             loss = criterion(outputs, labels)
             if loo_idx is not None:
                 if loo_idx in indices:
-                    loss[torch.where(torch.isin(indices, loo_idx))] = 0 # remove from loss contribution
+                    loss[torch.where(torch.isin(indices, loo_idx))] = 0     #Remove from loss contribution
             loss = loss.mean()
             loss.backward()
             optimizer.step()
