@@ -103,21 +103,20 @@ def train_model(model, train_loader, optimizer, criterion, num_epochs, save_path
 
 
 def test_model(model, test_loader, criterion):
+    """Runs the CNN model and returns the test loss, accuracy and predictions."""
     model.eval()
     correct = 0
     total = 0
     test_loss = []
     predictions = []
-    softmax_probs = []
 
     with torch.no_grad():
         for batch in test_loader:
             inputs, labels, _ = batch
             outputs = model(inputs)
-            probs, predicted = torch.max(torch.nn.functional.softmax(outputs), axis=1)
+            _, predicted = torch.max(torch.nn.functional.softmax(outputs), axis=1)
             total += labels.size(0)
             predictions.append(predicted.cpu().numpy())
-            softmax_probs.append(probs.cpu().numpy())
             correct += (predicted == labels).sum().item()
             test_loss.append(criterion(outputs, labels).cpu().numpy())
 
@@ -125,11 +124,9 @@ def test_model(model, test_loader, criterion):
 
     # Concatenate the predicted values into a single numpy array
     predictions = np.concatenate(predictions)
-    softmax_probs = np.concatenate(softmax_probs)
     test_loss = np.concatenate(test_loss)
 
-    # print('Test Loss: {:.4f}, Accuracy: {:.2f}%'.format(test_loss.mean(), accuracy))
-    return test_loss, accuracy, predictions, softmax_probs
+    return test_loss, accuracy, predictions
 
 
 def compute_gradient(model, criterion, instance):
@@ -243,6 +240,7 @@ def ViTLoRA(device):
 
 
 def test_vit(data_loader, device, model):
+    """Run the ViT model on the data in dataloader and return accuracy, loss and predictions."""
     loss = []
     preds = []
     num_correct = 0
