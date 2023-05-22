@@ -11,13 +11,14 @@ Training data attribution (TDA) techniques find influential training data for th
 The main dependencies are:
 
 - `python==3.10.4`
-- `torch`
-- `torchvision`
-- `transformers`
-- `datasets`
-- `numpy`
-- `pandas`
-- `scikit-learn`
+- `torch==2.0.0`
+- `torchvision==0.15.0`
+- `transformers==4.28.1`
+- `datasets==2.12.0`
+- `numpy==1.23.5`
+- `pandas==1.5.2`
+- `scikit-learn==1.2.2`
+- `seaborn==0.12.2`
 
 A `conda_env.yml` is provided that details the packages required for reproducing the experiments. 
 We conducted the experiments using this environment on a Nvidia 2080ti GPU.
@@ -30,7 +31,7 @@ To reproduce the dataset, run `run_subset_generation.py`.
 ### Models
 
 To train the CNN models, run `run_cnn_training.py`. 
-To finetune the ViT model, run `run_vit_finetuning.py`.
+To finetune the ViT model with LoRA, run `run_vit_finetuning.py`.
 
 These scripts train the respective model 10 times on the seeds specified in `random_seeds.pt`, which we also use in the paper. This corresponds to sampling a model $\theta$ from the posterior $p(\theta|\mathcal{D})$ using Deep Ensembling. 
 The checkpoints after the last 5 epochs are saved to `models/`. This corresponds to sampling a model $\theta$ from the posterior $p(\theta|\mathcal{D})$ similar to stochastic weight averaging. 
@@ -40,13 +41,17 @@ In the paper, we conduct hypothesis testing of the signal-to-noise ratio in TDA 
 
 #### Step 1: Computing the TDA scores
 We test 5 different TDA methods. To compute the TDA scores of across the ensemble of models, run the following:
+
 - For LOO: `python run_loo.py --experiment {str} --seed_id {int}`
 - For ATS: `python run_ats.py --experiment {str} --seed_id {int}`
 - For IF: `python run_if.py --experiment {str} --seed_id {int}`
-- 
+- For GD and GC: `python run_gd_and_gc.py --experiment {str} --seed_id {int}`
+
+The parameter `--experiment` specifies the name of the experiment. This should be the same as the model folder of the model to compute TDA for. 
+The parameter `--seed_id` is an integer that specifies the seed from the `random_seeds.pt` file. This parameter is used for parallel processing, in case multiple GPUs are available. 
 
 #### Step 2: Computing p-values
-xxx
+After TDA scores are computed, we can compute the 
 
 #### Step 3: Computing correlations
 xxxx
