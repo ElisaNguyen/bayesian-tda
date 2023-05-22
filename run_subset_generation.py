@@ -5,11 +5,12 @@ import os
 from utils import (MNISTWithIdx, CIFAR10WithIdx)
 
 
-def get_subset_indices(subset, num_per_class: int): 
+def get_subset_indices(dataset, num_per_class): 
+    """Randomly chooses num_per_class indices from dataset to make a balanced subset and returns a list of indices."""
     # Get the indices of each class in the dataset
     indices = {}
-    for i in range(len(subset)):
-        _, label,_ = subset[i]
+    for i in range(len(dataset)):
+        _, label,_ = dataset[i]
         if label not in indices:
             indices[label] = []
         indices[label].append(i)
@@ -22,6 +23,7 @@ def get_subset_indices(subset, num_per_class: int):
 
 
 def load_indices(idx_filepath):
+    """Reads indices defined in a text file at idx_filepath."""
     with open(idx_filepath, 'r') as f:
         indices = f.readlines()
     indices = [int(idx.strip()) for idx in indices]
