@@ -130,6 +130,7 @@ def test_model(model, test_loader, criterion):
 
 
 def compute_gradient(model, criterion, instance):
+    """Computes parameter gradient of the model for a given input."""
     input, label = instance[0], instance[1]
     
     # Forward pass to compute the loss
