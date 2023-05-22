@@ -36,8 +36,8 @@ def main():
     s_test_iterations = 1
 
     for num_ckpt in ckpts:
-        save_path = f"{os.getcwd()}/../tda_scores/if/{args.task}_{args.num_per_class}pc/{seed}/attribution_ckpt_{num_ckpt}.csv"
-        s_test_path = f'{os.getcwd()}/../tda_scores/if/{args.task}_{args.num_per_class}pc/{seed}/'
+        save_path = f"{os.getcwd()}/../tda_scores/cnn/if/{args.task}_{args.num_per_class}pc/{seed}/attribution_ckpt_{num_ckpt}.csv"
+        s_test_path = f'{os.getcwd()}/../tda_scores/cnn/if/{args.task}_{args.num_per_class}pc/{seed}/'
         precomputed_s_tests = torch.load(f'{s_test_path}/s_tests_ckpt_{num_ckpt}.pt')
 
         model = NetRGB() if train_dataset[0][0].shape[0]==3 else NetBW()

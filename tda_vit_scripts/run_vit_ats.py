@@ -87,7 +87,6 @@ def main():
             row_idx = np.where(df_ats['train_idx']==instance['idx'])[0][0]
             df_ats.loc[row_idx, colnames[1]:] = delta_loss
         df_ats.to_csv(f"{save_path}/attribution_ckpt_{num_ckpt}.csv", index=False)
-      
 
 
 if __name__=="__main__":

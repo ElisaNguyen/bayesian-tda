@@ -22,8 +22,6 @@ def main():
     colnames = [f'z_test_{idx}' for _,_,idx in test_dataset]
     colnames.insert(0, 'train_idx')
 
-    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-
     seeds = load_seeds()
     seed = seeds[args.seed_id]
 
@@ -35,8 +33,8 @@ def main():
         model.load_state_dict(ckpt['model_state_dict'])
         model.eval() 
 
-        save_path_gd = f"{os.getcwd()}/../tda_scores/gd/{args.task}_{args.num_per_class}pc/{seed}/attribution_ckpt_{num_ckpt}.csv"
-        save_path_gc = f"{os.getcwd()}/../tda_scores/gc/{args.task}_{args.num_per_class}pc/{seed}/attribution_ckpt_{num_ckpt}.csv"
+        save_path_gd = f"{os.getcwd()}/../tda_scores/cnn/gd/{args.task}_{args.num_per_class}pc/{seed}/attribution_ckpt_{num_ckpt}.csv"
+        save_path_gc = f"{os.getcwd()}/../tda_scores/cnn/gc/{args.task}_{args.num_per_class}pc/{seed}/attribution_ckpt_{num_ckpt}.csv"
 
         if not os.path.exists(os.path.split(save_path_gd)[0]):
             os.makedirs(os.path.split(save_path_gd)[0])
