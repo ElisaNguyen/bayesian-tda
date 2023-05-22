@@ -2,7 +2,7 @@ import torch
 from torchvision import transforms
 import numpy as np
 import os
-from utils import (MNISTWithIdx, CIFAR10WithIdx)
+from utils import (MNISTWithIdx, CIFAR10WithIdx, load_subset_indices)
 
 
 def get_subset_indices(dataset, num_per_class): 
@@ -22,14 +22,6 @@ def get_subset_indices(dataset, num_per_class):
     return subset_indices
 
 
-def load_indices(idx_filepath):
-    """Reads indices defined in a text file at idx_filepath."""
-    with open(idx_filepath, 'r') as f:
-        indices = f.readlines()
-    indices = [int(idx.strip()) for idx in indices]
-    return indices
-
-
 def main():
     # Download the data from torchvision
     trainset_mnist = MNISTWithIdx(root='./data', train=True, transform=transforms.ToTensor(), download=True)
@@ -43,8 +35,8 @@ def main():
         trainset, testset = datasets
         for num_per_class in [10, 20, 50]:
             # Create the balanced subset dataset (loading same indices as used in our study)
-            train_indices = load_indices(f'{os.getcwd()}/data/{task}/train_subset_{num_per_class}pc.txt')
-            test_indices = load_indices(f'{os.getcwd()}/data/{task}/test_subset.txt')
+            train_indices = load_subset_indices(f'{os.getcwd()}/data/{task}/train_subset_{num_per_class}pc.txt')
+            test_indices = load_subset_indices(f'{os.getcwd()}/data/{task}/test_subset.txt')
 
             # !! If you would like to define new subsets, uncomment this:
             # train_indices = get_subset_indices(trainset, num_per_class)
