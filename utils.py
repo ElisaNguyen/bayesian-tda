@@ -222,7 +222,7 @@ def compute_attribution(model, criterion, z_test_set, train_dataset, save_path, 
     df_attribution.to_csv(save_path, index=False)
 
 
-def vit_lora_model(device):
+def ViTLoRA(device):
     peft_config = LoraConfig(r=16,
                             lora_alpha=16,
                             target_modules=["query", "value"],
@@ -265,11 +265,11 @@ def test_vit(data_loader, device, model):
     return accuracy, loss, preds
 
 
-def load_vit_data(experiment):
-    dataset_name = 'mnist' if 'mnist' in experiment else 'cifar10'
-    train_subset_filename = 'train_subset_012' if 'mnist' in experiment else 'train_subset_cifar_50pc'
-    test_subset_filename = 'test_subset_012' if 'mnist' in experiment else 'test_subset_cifar'
+def load_vit_data(task, num_per_class):
+    """Load the image data preprocessed by AutoImageProcessor for the ViT."""
+    dataset_name = 'mnist' if 'mnist' in task else 'cifar10'    # Define the dataset name as in HuggingFace Datasets
 
+    # Load the image processor and data transforms
     image_processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224-in21k")
     normalize = Normalize(mean=image_processor.image_mean, std=image_processor.image_std)
     data_transforms = Compose(
@@ -285,24 +285,32 @@ def load_vit_data(experiment):
         example_batch["pixel_values"] = [data_transforms(image.convert("RGB")) for image in example_batch["image"]]
         return example_batch
     
+    # Load the training set and subselect it
     trainset = load_dataset(dataset_name, split='train')
-    if 'cifar' in experiment:
+    if task == 'cifar10':
         trainset = trainset.rename_column('img', 'image')
     trainset = trainset.add_column('idx', range(len(trainset)))
     trainset.set_transform(preprocess_data)
-    train_subset = torch.load(f'{os.getcwd()}/data/if_experiments/{train_subset_filename}.pt')
-    train_idx = [instance[2] for instance in train_subset]
+    train_idx = load_subset_indices(f'{os.getcwd()}/data/{task}/train_subset_{num_per_class}pc.txt')
     trainset = trainset.select((idx for idx in range(len(trainset))
                                 if idx in train_idx))
     
+    # Load the test set and subselect it
     testset = load_dataset(dataset_name, split='test')
-    if 'cifar' in experiment:
+    if task == 'cifar10':
         testset = testset.rename_column('img', 'image')
     testset = testset.add_column('idx', range(len(testset)))
     testset.set_transform(preprocess_data)
-    test_subset = torch.load(f'{os.getcwd()}/data/if_experiments/{test_subset_filename}.pt')
-    test_idx = [instance[2] for instance in test_subset]
+    test_idx = load_subset_indices(f'{os.getcwd()}/data/{task}/test_subset.txt')
     testset = testset.select((idx for idx in range(len(testset))
                                 if idx in test_idx))
     
     return trainset, testset
+
+
+def load_subset_indices(idx_filepath):
+    """Reads indices defined in a text file at idx_filepath."""
+    with open(idx_filepath, 'r') as f:
+        indices = f.readlines()
+    indices = [int(idx.strip()) for idx in indices]
+    return indices

@@ -9,9 +9,10 @@ from utils import (NetBW, NetRGB, train_model, load_seeds)
 def main():
     seeds = load_seeds()
     for task in ['mnist3', 'cifar10']:
+        num_epochs = 15 if task == 'mnist3' else 30     # Train models for 15 epochs for MNIST, 30 for CIFAR
+
         for num_per_class in [10, 20, 50]:
             train_dataset = torch.load(f'{os.getcwd()}/data/{task}/train_subset_{num_per_class}.pt')
-            num_epochs = 15 if task == 'mnist3' else 30     # Train models for 15 epochs for MNIST, 30 for CIFAR
 
             for seed in seeds:
                 torch.manual_seed(seed)
@@ -27,7 +28,7 @@ def main():
                             optimizer=optimizer,
                             criterion=criterion,
                             num_epochs=num_epochs,
-                            save_path=f'{os.getcwd()}/models/{task}/{seed}')
+                            save_path=f'{os.getcwd()}/models/cnn/{task}_{num_per_class}pc/{seed}')
 
 
 if __name__=="__main__":
