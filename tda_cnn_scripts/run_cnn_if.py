@@ -14,18 +14,16 @@ def main():
     parser.add_argument('--num_per_class', type=int, default=10, help='Number of samples per class that the model was trained on from {10,20,50}')
     args = parser.parse_args()
 
+    # Load datasets and variables needed for the computation
     num_epochs = 15 if 'mnist' in args.task else 30
     ckpts = range(num_epochs-5, num_epochs)
-
     train_dataset = torch.load(f'{os.getcwd()}/../data/{args.task}/train_subset_{args.num_per_class}pc.pt')
     test_dataset = torch.load(f'{os.getcwd()}/../data/{args.task}/test_subset.pt')
     colnames = [f'z_test_{idx}' for _,_,idx in test_dataset]
     colnames.insert(0, 'train_idx')
     batch_train_data_loader = DataLoader(train_dataset, batch_size=8)
     instance_train_data_loader=DataLoader(train_dataset, batch_size=1)
-
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-
     seeds = load_seeds()
     seed = seeds[args.seed_id]
 
@@ -36,17 +34,21 @@ def main():
     s_test_iterations = 1
 
     for num_ckpt in ckpts:
+        # Define save path and load precomputed s_test HVPs
         save_path = f"{os.getcwd()}/../tda_scores/cnn/if/{args.task}_{args.num_per_class}pc/{seed}/attribution_ckpt_{num_ckpt}.csv"
         s_test_path = f'{os.getcwd()}/../tda_scores/cnn/if/{args.task}_{args.num_per_class}pc/{seed}/'
         precomputed_s_tests = torch.load(f'{s_test_path}/s_tests_ckpt_{num_ckpt}.pt')
 
+        # Load trained model
         model = NetRGB() if train_dataset[0][0].shape[0]==3 else NetBW()
         ckpt = torch.load(f'{os.getcwd()}/../models/cnn/{args.task}_{args.num_per_class}pc/{seed}/ckpt_epoch_{num_ckpt}.pth')
         model.load_state_dict(ckpt['model_state_dict'])
         model.eval()
 
+        # Set up DataFrame for saving results
         df_if = pd.DataFrame()
         df_if['train_idx'] = [idx for _,_,idx in train_dataset]
+        
         for z_test in test_dataset: 
             z_test_idx = z_test[2]
             precomputed_s_test = precomputed_s_tests[z_test_idx]

@@ -14,11 +14,11 @@ def main():
     parser.add_argument('--num_per_class', type=int, default=10, help='Number of samples per class that the model was trained on from {10,20,50}')
     args = parser.parse_args()
 
+    # Load datasets and variables needed for the computation
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     train_dataset = torch.load(f'{os.getcwd()}/../data/{args.task}/train_subset_{args.num_per_class}pc.pt')
     train_loader = DataLoader(train_dataset, batch_size=8)
     test_dataset = torch.load(f'{os.getcwd()}/../data/{args.task}/test_subset.pt')
-
     seeds = load_seeds()
     seed = seeds[args.seed_id]
     num_epochs = 15 if 'mnist' in args.task else 30
@@ -33,12 +33,13 @@ def main():
 
     for num_ckpt in ckpts:
         s_tests = {}
-        # Load model
+        # Load trained model
         model = NetRGB() if train_dataset[0][0].shape[0]==3 else NetBW()
         ckpt = torch.load(f'{os.getcwd()}/../models/cnn/{args.task}_{args.num_per_class}pc/{seed}/ckpt_epoch_{num_ckpt}.pth')
         model.load_state_dict(ckpt['model_state_dict'])
         model.eval()
 
+        # Set up save path and check if it already exists
         save_path = f'{os.getcwd()}/../tda_scores/cnn/if/{args.task}_{args.num_per_class}pc/{seed}/'
         if not os.path.exists(save_path):
             os.makedirs(save_path)

@@ -259,7 +259,6 @@ def compute_influences(
         torch.cuda.empty_cache()
 
     influences = {}
-    # train_inputs_collections = {}
     for index, train_inputs in enumerate(tqdm(instance_train_data_loader)):
         if precomputed_grad_zjs is not None:
             if type(precomputed_grad_zjs) is str:
@@ -290,6 +289,5 @@ def compute_influences(
 
         influences[train_inputs['idx'].item()] = sum(influence).item()
         torch.cuda.empty_cache()
-        # train_inputs_collections[index] = train_inputs
 
-    return influences#, train_inputs_collections, s_test
+    return influences

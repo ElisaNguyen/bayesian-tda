@@ -15,8 +15,9 @@ def main():
             train_dataset = torch.load(f'{os.getcwd()}/data/{task}/train_subset_{num_per_class}.pt')
 
             for seed in seeds:
-                torch.manual_seed(seed)
+                torch.manual_seed(seed)     # Set the random seed
 
+                # Set up the model, data loader and optimizer
                 model = NetRGB() if train_dataset[0][0].shape[0]==3 else NetBW()
                 criterion = nn.CrossEntropyLoss(reduction='none')
                 optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.005)

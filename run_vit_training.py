@@ -13,9 +13,11 @@ def main():
         num_epochs = 15 if task == 'mnist3' else 30     # Train models for 15 epochs for MNIST, 30 for CIFAR
 
         for num_per_class in [10, 20, 50]:
+            # Load the preprocessed data
             trainset, _ = load_vit_data(task, num_per_class)
 
             for seed in seeds:
+                # Set up the save path if it does not exist yet
                 save_path = f'{os.getcwd()}/models/vit/{task}_{num_per_class}pc/{seed}/'
                 if not os.path.exists(save_path):
                     os.makedirs(save_path)
@@ -25,9 +27,11 @@ def main():
                     labels = torch.tensor([example["label"] for example in examples])
                     return {"pixel_values": pixel_values, "labels": labels}
                 
+                # Set the seed and dataloader
                 torch.manual_seed(seed)
                 train_loader = torch.utils.data.DataLoader(trainset, batch_size=32, collate_fn=collate_fn, shuffle=True)
 
+                # Load the LoRA model 
                 model = ViTLoRA(device=device)
                 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=0.005)
                 lr_scheduler = get_linear_schedule_with_warmup(
@@ -36,6 +40,7 @@ def main():
                     num_training_steps=(len(train_loader) * num_epochs),
                 )
 
+                # Train model and save last 5 checkpoints
                 model.train()
                 for epoch in range(num_epochs):
                     for batch in tqdm.tqdm(train_loader):

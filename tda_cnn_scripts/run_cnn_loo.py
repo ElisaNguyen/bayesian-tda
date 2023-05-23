@@ -16,25 +16,25 @@ def main():
     parser.add_argument('--num_per_class', type=int, default=10, help='Number of samples per class that the model was trained on from {10,20,50}')
     args = parser.parse_args()
 
+    # Load datasets and variables needed for the computation
     num_epochs = 15 if 'mnist' in args.task else 30
     ckpts = range(num_epochs-5, num_epochs)
-
     train_dataset = torch.load(f'{os.getcwd()}/../data/{args.task}/train_subset_{args.num_per_class}pc.pt')
     test_dataset = torch.load(f'{os.getcwd()}/../data/{args.task}/test_subset.pt')
     colnames = [f'z_test_{idx}' for _,_,idx in test_dataset]
     colnames.insert(0, 'train_idx')
     test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
-    
     seeds = load_seeds()
     seed = seeds[args.seed_id]
-
     criterion = nn.CrossEntropyLoss(reduction='none')
 
+    # Set up save path for saving results
     save_path = f"{os.getcwd()}/../tda_scores/cnn/loo/{args.task}_{args.num_per_class}pc/{seed}/"
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
     for num_ckpt in ckpts:
+        # Set up dataframe for results
         df_loo = pd.DataFrame(columns=colnames)
         df_loo['train_idx'] = [idx for _,_,idx in train_dataset]
         for _,_, z_train_idx in train_dataset:
@@ -52,11 +52,11 @@ def main():
             model.train()      # Set model to train mode for retraining 
             optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.005)    # Same parameters as training
 
-            # Load the MNIST dataset
+            # Set the random seed and load the training set
             torch.manual_seed(seed)
             train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
-            # Train and record the checkpoints
+            # Train with z_train_idx removed and record the checkpoints
             model = train_model(model, 
                                 train_loader=train_loader, 
                                 optimizer=optimizer,

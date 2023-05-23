@@ -16,13 +16,14 @@ def main():
     parser.add_argument('--num_per_class', type=int, default=10, help='Number of samples per class that the model was trained on from {10,20,50}')
     args = parser.parse_args()
 
+    # Load variables needed for the computation
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     seeds = load_seeds()
     seed = seeds[args.seed_id]
-
     num_epochs = 15 if 'mnist' in args.task else 30
     ckpts = range(num_epochs-5, num_epochs)
 
+    # Set up save folder
     save_path = f"{os.getcwd()}/../tda_scores/vit/loo/{args.task}_{args.num_per_class}pc/{seed}/"
     if not os.path.exists(save_path):
         os.makedirs(save_path)
@@ -36,6 +37,7 @@ def main():
         idx = torch.tensor([example["idx"] for example in examples])
         return {"pixel_values": pixel_values, "labels": labels, "idx": idx}
 
+    # Set random seed and data loaders
     torch.manual_seed(seed)
     train_loader = DataLoader(trainset, batch_size=32, collate_fn=collate_fn, shuffle=True)
     test_loader = DataLoader(testset, batch_size=64, collate_fn=collate_fn, shuffle=False)
