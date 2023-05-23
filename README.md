@@ -46,18 +46,16 @@ We test 5 different TDA methods. We provide the scripts in the folders `tda_cnn_
 
 Each of the scripts should be called with the following parameters: `python <script_name> --task <string> --num_per_class <int> --seed_id <int>`. 
 
-The parameter `--task` specifies the task of the experiment, i.e. either `mnist3` or `cifar10`.
-
-The parameter `--num_per_class` is an integer $\in$ {10, 20, 50} that refers to how many samples per class the model was trained on.
-
-The parameter `--seed_id` is an integer that specifies the seed from the `random_seeds.pt` file. This parameter is used for parallel processing, in case multiple GPUs are available. 
+- `--task` specifies the task of the experiment, i.e. either `mnist3` or `cifar10`.
+- `--num_per_class` is an integer $\in$ {10, 20, 50} that refers to how many samples per class the model was trained on.
+- `--seed_id` is an integer that specifies the seed from the `random_seeds.pt` file. This parameter is used for parallel processing, in case multiple GPUs are available. 
 
 For computing influence functions, we use the code provided by the [FastIF repository](https://github.com/salesforce/fast-influence-functions). Beware to compute the HVP s_test before computing the influence function. 
 
 Please note that this step may take a while, depending on the size of the model. 
 
 #### Step 2: Computing p-values
-After TDA scores are computed, we can compute the 
+After TDA scores are computed, we can analyse the reliability of the scores by the p-values. To compute p-values across the TDA scores computed for each train-test pair of each sample $\theta$, run `run_compute_pvalues.py`. This will generate CSV files of the p-values in the 
 
 #### Step 3: Computing correlations
 xxxx
