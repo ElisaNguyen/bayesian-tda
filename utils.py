@@ -14,6 +14,7 @@ from torchvision.transforms import (
     RandomResizedCrop,
     ToTensor,
 )
+from types import List
 
 
 def load_seeds():
@@ -148,78 +149,6 @@ def compute_gradient(model, criterion, instance):
     return gradient_tuple
 
 
-def compute_grad_grad(model, criterion, instance):
-    input, label = instance[0], instance[1]
-    
-    # Forward pass to compute the loss
-    outputs = model(input)
-    loss = criterion(outputs, label)
-    
-    # Backward pass to compute gradients
-    model.zero_grad()
-    # loss.backward()
-    
-    # # Extract the gradients of the inputs tensor
-    # gradient = input.grad
-    gradient_tuple = torch.autograd.grad(outputs=loss, 
-                                   inputs=[
-                                    param for _, param
-                                    in model.named_parameters()
-                                    if param.requires_grad], 
-                                   grad_outputs=loss, 
-                                   create_graph=True)
-
-    model.zero_grad()
-    grad_grad_tuple = torch.autograd.grad(outputs=gradient_tuple, 
-                                    inputs=[
-                                    param for _, param
-                                    in model.named_parameters()
-                                    if param.requires_grad], 
-                                    grad_outputs=gradient_tuple)
-
-    return grad_grad_tuple
-
-
-def dot_product_loss_gradients(model, criterion, data1, data2):
-    grad1 = compute_gradient(model, criterion, data1)
-    grad2 = compute_gradient(model, criterion, data2)
-
-    # Compute dot product of gradients
-    # dot_product = torch.dot(grad1.squeeze().flatten(), grad2.squeeze().flatten()) # this is only for one
-    dot_product = torch.sum(grad1*grad2, axis=(1,2,3))
-    
-    return dot_product
-
-
-def cos_similarity_loss_gradient(model, criterion, data1, data2):
-    grad1 = compute_gradient(model, criterion, data1)
-    grad2 = compute_gradient(model, criterion, data2)
-
-    # Compute cosine similarity
-    flat_dim = grad1.squeeze().flatten().size(0)
-    cos_sim = nn.functional.cosine_similarity(grad1.reshape([1, flat_dim]), grad2.reshape([grad2.shape[0], flat_dim]), dim=1)
-    return cos_sim
-
-
-def compute_attribution(model, criterion, z_test_set, train_dataset, save_path, attribution_method):
-    if not os.path.exists(os.path.split(save_path)[0]):
-        os.makedirs(os.path.split(save_path)[0])
-    df_attribution = pd.DataFrame()
-    df_attribution['train_idx'] = [idx for _,_,idx in train_dataset]
-    test_instance_loader = torch.utils.data.DataLoader(z_test_set, batch_size=1, shuffle=False)
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=64, shuffle=False)
-    for z_test in tqdm(test_instance_loader):
-        z_test_idx = z_test[2].cpu().item()
-        attribution = []
-        for z_train_batch in train_loader:
-            attribution.extend(attribution_method(model=model,
-                                                    criterion=criterion,
-                                                    data1=z_test,
-                                                    data2=z_train_batch).cpu())
-        df_attribution[f'z_test_{z_test_idx}'] = [x.item() for x in attribution]
-    df_attribution.to_csv(save_path, index=False)
-
-
 def ViTLoRA(device):
     """Loads the ViT model as a peft model with LoRA."""
     peft_config = LoraConfig(r=16,
@@ -314,3 +243,60 @@ def load_subset_indices(idx_filepath):
         indices = f.readlines()
     indices = [int(idx.strip()) for idx in indices]
     return indices
+
+
+def load_attribution_types():
+    return ['loo', 'ats', 'if', 'gd', 'gc']
+
+
+def get_expected_tau_per_z(expected_attributions, test_idx):
+    """Organise the expected attributions."""
+    seeds = load_seeds()
+    # Reordering the attributions into respective dataframes
+    expected_tau_per_z = {}
+    for z_test_idx in test_idx:
+        df = pd.DataFrame()
+        for seed in seeds:
+            df[seed] = expected_attributions[seed][f'z_test_{z_test_idx}']
+        expected_tau_per_z[f'z_test_{z_test_idx}'] = df
+    return expected_tau_per_z
+
+
+def load_expected_tda_swa(num_ckpts: int,
+                               experiment: str,
+                               tau: List[str] = ['loo', 'ats', 'if', 'gd', 'gc']):
+    """Loading the expected attribution of type tau across the last num_ckpts checkpoints."""
+    seeds = load_seeds()
+    expected_tda = {}
+    model_name, task, num_per_class = experiment.split('_')
+    max_ckpt = 15 if 'mnist3'==task else 30
+    ckpts = range(max_ckpt-num_ckpts, max_ckpt) 
+
+    for seed in seeds:
+        cumulative_attribution=None
+        for num_ckpt in ckpts:
+            attribution = pd.read_csv(f'{os.getcwd()}/tda_scores/{model_name}/{tau}/{task}_{num_per_class}pc/{seed}/attribution_ckpt_{num_ckpt}.csv', index_col=False)
+            cumulative_attribution = attribution if cumulative_attribution is None else cumulative_attribution + attribution
+        expected_tda[seed] = cumulative_attribution/len(ckpts)
+    return expected_tda
+
+
+def get_mu_and_sigma(tau: str, 
+                     num_ckpts: int, 
+                     experiment: str, 
+                     test_idx: List[int]):
+    """Compute mean and standard deviation across random seeds and checkpoints for all train-test pairs."""
+    expected_attributions = load_expected_tda_swa(num_ckpts=num_ckpts, 
+                                                    experiment=experiment,
+                                                    tau=tau)
+    expected_tau_per_z = get_expected_tau_per_z(expected_attributions=expected_attributions,
+                                                test_idx=test_idx)
+    all_means = pd.DataFrame()
+    all_stds = pd.DataFrame()
+    for z_test_idx in test_idx:
+        means = expected_tau_per_z[f'z_test_{z_test_idx}'].mean(axis=1)
+        all_means[z_test_idx] = means
+        stds = expected_tau_per_z[f'z_test_{z_test_idx}'].std(axis=1)
+        all_stds[z_test_idx] = stds
+    return all_means, all_stds
+
