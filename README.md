@@ -55,7 +55,9 @@ For computing influence functions, we use the code provided by the [FastIF repos
 Please note that this step may take a while, depending on the size of the model. 
 
 #### Step 2: Computing p-values
-After TDA scores are computed, we can analyse the reliability of the scores by the p-values. To compute p-values across the TDA scores computed for each train-test pair of each sample $\theta$, run `run_compute_pvalues.py`. This will generate CSV files of the p-values in the 
+After TDA scores are computed, we can analyse the reliability of the scores by the p-values. To compute p-values across the TDA scores computed for each train-test pair of each sample $\theta$, run `run_compute_pvalues.py`. This will generate CSV files of the p-values in a new `results/<experiment>` folder.
+
+Specify the experiment to compute p-values for as `<model>_<task>_<num_per_class>pc`, e.g. `cnn_mnist3_10pc`. 
 
 #### Step 3: Computing correlations
-xxxx
+We provide the script to compute the Pearson and Spearman correlation between the mean, standard deviation and p-values computed across the different samples $\theta$ in `run_correlation_analysis.py`. This will save the correlation matrices in the `results/<experiment>` folder.
