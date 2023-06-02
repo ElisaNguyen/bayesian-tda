@@ -1,6 +1,10 @@
 # A Bayesian Perspective On Training Data Attribution
 
+#### Elisa Nguyen, Minjoon Seo, Seong Joon Oh
+
 Training data attribution (TDA) techniques find influential training data for the model's prediction on the test data of interest. They approximate the impact of down- or up-weighting a particular training sample. While conceptually useful, they are hardly applicable in practice, particularly because of their sensitivity to different model initialisation. In this paper, we introduce a Bayesian perspective on the TDA task, where the learned model is treated as a Bayesian posterior and the TDA estimates as random variables. From this novel viewpoint, we observe that the influence of an individual training sample is often overshadowed by the noise stemming from model initialisation and SGD batch composition. Based on this observation, we argue that TDA can only be reliably used for explaining model predictions that are consistently influenced by certain training data, independent of other noise factors. Our experiments demonstrate the rarity of such noise-independent training-test data pairs but confirm their existence. We recommend that future researchers and practitioners trust TDA estimates only in such cases. Further, we find a disagreement between ground truth and estimated TDA distributions and encourage future work to study this gap. 
+
+#### [Link to paper](https://arxiv.org/abs/2305.19765)
 
 ------------------------------
 ## Reproducing the experiments
@@ -60,3 +64,20 @@ Specify the experiment to compute p-values for as `<model>_<task>_<num_per_class
 
 #### Step 3: Computing correlations
 We provide the script to compute the Pearson and Spearman correlation between the mean, standard deviation and p-values computed across the different samples $\theta$ in `run_correlation_analysis.py`. This will save the correlation matrices in the `results/<experiment>` folder.
+
+----------
+## Contact
+For any problem with implementation or bug, please contact <a href="mailto:elisa.nguyen@live.de" target="_blank">Elisa Nguyen</a>
+.
+
+## How to cite
+```
+@misc{nguyen2023bayesian,
+      title={A Bayesian Perspective On Training Data Attribution}, 
+      author={Elisa Nguyen and Minjoon Seo and Seong Joon Oh},
+      year={2023},
+      eprint={2305.19765},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
+```
