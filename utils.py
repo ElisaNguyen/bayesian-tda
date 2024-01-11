@@ -61,6 +61,50 @@ class NetRGB(nn.Module):
         return x
     
 
+class NetBWThree(nn.Module):
+    def __init__(self):
+        super(NetBWThree, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3)
+        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=2)
+        self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=2)
+        self.pool = nn.MaxPool2d(kernel_size=2)
+        self.fc1 = nn.Linear(in_features=128*4*4, out_features=256)
+        self.fc2 = nn.Linear(in_features=256, out_features=10)
+
+    def forward(self, x, output_hidden_states=False):
+        x = self.pool(nn.functional.gelu(self.conv1(x)))
+        x = self.pool(nn.functional.gelu(self.conv2(x)))
+        x = self.pool(nn.functional.gelu(self.conv3(x)))
+        x = x.view(-1, 128*4*4)
+        x_latent = nn.functional.gelu(self.fc1(x))
+        x = self.fc2(x_latent)
+        if output_hidden_states:
+            return (x, x_latent)
+        return x
+    
+
+class NetRGBThree(nn.Module):
+    def __init__(self):
+        super(NetRGBThree, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3)
+        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
+        self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=2)
+        self.pool = nn.MaxPool2d(kernel_size=2)
+        self.fc1 = nn.Linear(in_features=128*4*4, out_features=256)
+        self.fc2 = nn.Linear(in_features=256, out_features=10)
+
+    def forward(self, x, output_hidden_states=False):
+        x = self.pool(nn.functional.gelu(self.conv1(x)))
+        x = self.pool(nn.functional.gelu(self.conv2(x)))
+        x = self.pool(nn.functional.gelu(self.conv3(x)))
+        x = x.view(-1, 128*4*4)
+        x_latent = nn.functional.gelu(self.fc1(x))
+        x = self.fc2(x_latent)
+        if output_hidden_states:
+            return (x, x_latent)
+        return x
+    
+
 class MNISTWithIdx(MNIST):
     def __getitem__(self, index):
         img, target = super(MNISTWithIdx, self).__getitem__(index)
