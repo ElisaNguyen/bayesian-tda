@@ -1,8 +1,8 @@
-# A Bayesian Perspective On Training Data Attribution
+# A Bayesian Approach To Analysing Training Data Attribution In Deep Learning
 
 #### Elisa Nguyen, Minjoon Seo, Seong Joon Oh
 
-Training data attribution (TDA) techniques find influential training data for the model's prediction on the test data of interest. They approximate the impact of down- or up-weighting a particular training sample. While conceptually useful, they are hardly applicable in practice, particularly because of their sensitivity to different model initialisation. In this paper, we introduce a Bayesian perspective on the TDA task, where the learned model is treated as a Bayesian posterior and the TDA estimates as random variables. From this novel viewpoint, we observe that the influence of an individual training sample is often overshadowed by the noise stemming from model initialisation and SGD batch composition. Based on this observation, we argue that TDA can only be reliably used for explaining model predictions that are consistently influenced by certain training data, independent of other noise factors. Our experiments demonstrate the rarity of such noise-independent training-test data pairs but confirm their existence. We recommend that future researchers and practitioners trust TDA estimates only in such cases. Further, we find a disagreement between ground truth and estimated TDA distributions and encourage future work to study this gap. 
+Training data attribution (TDA) techniques find influential training data for the model's prediction on the test data of interest. They approximate the impact of down- or up-weighting a particular training sample. While conceptually useful, they are hardly applicable to deep models in practice, particularly because of their sensitivity to different model initialisation. In this paper, we introduce a Bayesian perspective on the TDA task, where the learned model is treated as a Bayesian posterior and the TDA estimates as random variables. From this novel viewpoint, we observe that the influence of an individual training sample is often overshadowed by the noise stemming from model initialisation and SGD batch composition. Based on this observation, we argue that TDA can only be reliably used for explaining deep model predictions that are consistently influenced by certain training data, independent of other noise factors. Our experiments demonstrate the rarity of such noise-independent training-test data pairs but confirm their existence. We recommend that future researchers and practitioners trust TDA estimates only in such cases. Further, we find a disagreement between ground truth and estimated TDA distributions and encourage future work to study this gap.
 
 #### [Link to paper](https://arxiv.org/abs/2305.19765)
 
@@ -33,7 +33,7 @@ To reproduce the dataset, run `run_subset_generation.py`.
 
 ### Models
 
-To train the CNN models, run `run_cnn_training.py`. 
+To train the CNN models, run `run_cnn_training.py`. This trains two layer CNNs. If you want to train three layer CNNs, update this script with the respective classes.  
 To finetune the ViT model with LoRA, run `run_vit_finetuning.py`.
 
 These scripts train the respective model 10 times on the seeds specified in `random_seeds.pt`, which we also use in the paper. This corresponds to sampling a model $\theta$ from the posterior $p(\theta|\mathcal{D})$ using Deep Ensembling. 
@@ -72,12 +72,10 @@ For any problem with implementation or bug, please contact <a href="mailto:elisa
 
 ## How to cite
 ```
-@misc{nguyen2023bayesian,
-      title={A Bayesian Perspective On Training Data Attribution}, 
-      author={Elisa Nguyen and Minjoon Seo and Seong Joon Oh},
-      year={2023},
-      eprint={2305.19765},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
+@inproceedings{nguyen2023bayesiantda,
+    title = {A Bayesian Perspective On Training Data Attribution},
+    author = {Nguyen, Elisa and Seo, Minjoon and Oh, Seong Joon},
+    year = {2023},
+    booktitle = {Conference on Neural Information Processing Systems},
 }
 ```
