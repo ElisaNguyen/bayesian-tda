@@ -19,6 +19,9 @@ def main():
     num_epochs = 15 if 'mnist' in args.task else 30
     ckpts = range(num_epochs-5, num_epochs)
 
+    seeds = load_seeds()
+    seed = seeds[args.seed_id]
+
     save_path = f"{os.getcwd()}/../tda_scores/cnn/ats/{args.task}_{args.num_per_class}pc/{seed}/"
     if not os.path.exists(save_path):
         os.makedirs(save_path)
@@ -29,9 +32,6 @@ def main():
     colnames = [f'z_test_{idx}' for _,_,idx in test_dataset]
     colnames.insert(0, 'train_idx')
     test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
-
-    seeds = load_seeds()
-    seed = seeds[args.seed_id]
 
     for num_ckpt in ckpts:
         df_ats = pd.DataFrame(columns=colnames)
