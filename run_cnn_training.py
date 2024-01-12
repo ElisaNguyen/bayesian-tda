@@ -11,7 +11,7 @@ def main():
     for task in ['mnist3', 'cifar10']:
         num_epochs = 15 if task == 'mnist3' else 30     # Train models for 15 epochs for MNIST, 30 for CIFAR
 
-        for num_per_class in [10, 20, 30, 40, 50, 60]:
+        for num_per_class in [10, 20, 50]:
             train_dataset = torch.load(f'{os.getcwd()}/data/{task}/train_subset_{num_per_class}.pt')
 
             for seed in seeds:
